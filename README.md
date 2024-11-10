@@ -8,6 +8,8 @@ Scalable: Capable of handling multiple files within a DLC directory, automatical
 
 **Current Limitations**
 Under Development: The script is not yet fully optimized or reliable, especially for use in critical engineering applications.
+it can show min and max values for different parameters but for now all of them are in a single sheet!
+also it doesn't consider safety factors
 
 **Future Development Goals**
 Enhanced Data Validation: Implement input validation to ensure consistent data format and handle missing values.
