@@ -1,5 +1,9 @@
 import os
 import pandas as pd
+import warnings
+
+# Suppress FutureWarnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # Define the directory containing the output files
 output_dir = r"C:\Users\araz_\Desktop\GITHUB\Mextremes\DLC12"
@@ -12,8 +16,8 @@ for filename in os.listdir(output_dir):
     if filename.endswith(".out"):
         filepath = os.path.join(output_dir, filename)
         
-        # Read the file, skipping the first 6 rows of comments
-        data = pd.read_csv(filepath, skiprows=6, delimiter='\t')
+        # Read the file, skipping the first 6 rows of comments, with flexible whitespace delimiter
+        data = pd.read_csv(filepath, skiprows=6, sep=r'\s+', header=0)
         
         # Assume the first row after skipping contains the parameter names, and second row contains units
         parameter_names = data.columns
