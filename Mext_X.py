@@ -1,17 +1,17 @@
 import os
 import pandas as pd
-import warniings
+import warnings
 
-# Suppress FutureWarnings
+# Suppress FutureWarnings 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # Define the directory containing the output files
-output_dir = r"C:\Users\araz_\Desktop\GITHUB\Mextremes\DLC12"
+output_dir = r"C:\Users\araz_\Desktop\GITHUB\Mextremes\DATA"
 
 # Dictionary to store global extreme values for each parameter across files
 extreme_values = {}
 
-# Loop through each file in the output directory
+# Loop through each file in the output directory without verbose output
 for filename in os.listdir(output_dir):
     if filename.endswith(".out"):
         filepath = os.path.join(output_dir, filename)
@@ -21,9 +21,12 @@ for filename in os.listdir(output_dir):
         
         # Assume the first row after skipping contains the parameter names, and second row contains units
         parameter_names = data.columns
-        units = data.iloc[0]
-        data = data.iloc[2:].reset_index(drop=True)  # Get actual values, starting from row 9
-        
+        units = data.iloc[0]  # Units in row 8
+        data = data.iloc[1:].reset_index(drop=True)  # Get actual values starting from row 9
+
+        # Convert data to numeric, with non-numeric entries handled as NaN
+        data = data.apply(pd.to_numeric, errors='coerce')
+
         # Find min and max values for each parameter in the current file
         for column in parameter_names:
             # Calculate min and max for the current file
@@ -52,21 +55,24 @@ rows = [[""] * len(header_columns) for _ in range(3)]
 rows[0][3:] = list(extreme_values.keys())  # Parameter names in row 1
 rows[1][3:] = [extreme_values[param]["Unit"] for param in extreme_values]  # Units in row 2
 
-# Create rows for the min and max values for each parameter
+# Create rows for the min and max values for each parameter, formatted to 3 decimal places
 for parameter, values in extreme_values.items():
     # Add the minimum row
     min_row = [parameter, "Minimum", values["Min"]["file"]] + [""] * (len(header_columns) - 3)
-    min_row[header_columns.index(parameter)] = values["Min"]["value"]
+    min_row[header_columns.index(parameter)] = f"{values['Min']['value']:.3e}"
     rows.append(min_row)
     
     # Add the maximum row
     max_row = [parameter, "Maximum", values["Max"]["file"]] + [""] * (len(header_columns) - 3)
-    max_row[header_columns.index(parameter)] = values["Max"]["value"]
+    max_row[header_columns.index(parameter)] = f"{values['Max']['value']:.3e}"
     rows.append(max_row)
 
-# Create DataFrame and output to Excel
+# Create DataFrame and output to Excel with scientific notation and 3 decimal places
 final_output_df = pd.DataFrame(rows, columns=header_columns)
-output_excel_path = r"C:\Users\araz_\Desktop\GITHUB\Mextremes\extreme_values_output.xlsx"
-final_output_df.to_excel(output_excel_path, index=False)
+output_excel_path = r"C:\Users\araz_\Desktop\GITHUB\Mextremes\MEX_File\extreme_values_output.xlsx"
+
+# Writing to Excel with precision formatted to scientific notation
+with pd.ExcelWriter(output_excel_path) as writer:
+    final_output_df.to_excel(writer, index=False, float_format="%.3e")
 
 print(f"Extreme values have been saved to {output_excel_path}")
