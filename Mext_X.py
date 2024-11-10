@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-import warnings
+import warniings
 
 # Suppress FutureWarnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
